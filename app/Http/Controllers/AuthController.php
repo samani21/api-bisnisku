@@ -44,7 +44,6 @@ class AuthController extends Controller
             return $this->utilityService->is500InternalServerError('Terjadi kesalahan saat registrasi');
         }
     }
-
     public function login(Request $request)
     {
         $this->validate($request, [
@@ -58,12 +57,16 @@ class AuthController extends Controller
             return $this->utilityService->is401Unauthorized('Email atau password salah');
         }
 
+        $user = auth()->user();
+
         $data = [
-            'token' => $token
+            'token' => $token,
+            'user'  => $user,
         ];
 
         return $this->utilityService->is200ResponseWithData('Login berhasil', $data);
     }
+
 
     public function me()
     {

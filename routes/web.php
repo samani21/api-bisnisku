@@ -12,13 +12,16 @@
 | and give it the Closure to call when that URI is requested.
 |
 */
+$router->options('{any:.*}', function () {
+    return response('', 200);
+});
 
 $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
 $router->post('register', 'AuthController@register');
-$router->post('login', 'AuthController@login');
+$router->post('/v1/login', 'AuthController@login');
 
 $router->group(['prefix' => 'v1', 'middleware' => 'jwt.auth'], function () use ($router) {
     $router->get('me', 'AuthController@me');
