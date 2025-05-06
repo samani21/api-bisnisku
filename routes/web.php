@@ -23,7 +23,9 @@ $router->get('/', function () use ($router) {
 $router->post('register', 'AuthController@register');
 $router->post('/v1/login', 'AuthController@login');
 
-$router->group(['prefix' => 'v1', 'middleware' => 'jwt.auth'], function () use ($router) {
+$router->group(['prefix' => 'v1/', 'middleware' => 'jwt.auth'], function () use ($router) {
     $router->get('me', 'AuthController@me');
     // Tambah route lain di sini
+    $router->post('paket-pelanggan/add', 'PaketLanggananController@create');
+    $router->get('paket-pelanggan', 'PaketLanggananController@index');
 });
