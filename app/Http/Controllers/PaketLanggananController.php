@@ -17,7 +17,7 @@ class PaketLanggananController extends Controller
 
     public function index(Request $request)
     {
-        $data = PaketLangganan::get();
+        $data = PaketLangganan::select('*', 'aktif as status')->get();
         if ($data) {
             return $this->utilityService->is200ResponseWithData("Berhasil simpan data", $data);
         } else {
@@ -39,6 +39,28 @@ class PaketLanggananController extends Controller
             return $this->utilityService->is201ResponseCreated("Berhasil simpan data", $insert);
         } else {
             return $this->utilityService->is500InternalServerError("Gagal simpan data");
+        }
+    }
+    public function update(Request $request, $id)
+    {
+        $data = PaketLangganan::find($id);
+        $data->nama_paket = $request->nama_paket;
+        $data->harga = $request->harga;
+        $data->durasi_hari = $request->durasi_hari;
+        $data->deskripsi = $request->deskripsi;
+        if ($data->save()) {
+            return $this->utilityService->is201ResponseUpdated("Update data berhasil");
+        } else {
+            return $this->utilityService->is500InternalServerError("Gagal update data");
+        }
+    }
+    public function distroy($id)
+    {
+        $data = PaketLangganan::find($id);
+        if ($data->delete()) {
+            return $this->utilityService->is200ResponseWith("Data berhasil dihapus");
+        } else {
+            return $this->utilityService->is500InternalServerError("Gagal hapus data");
         }
     }
 }

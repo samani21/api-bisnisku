@@ -21,6 +21,13 @@ class UtilityService
             'data' => $data
         ], 200);
     }
+    public function is200ResponseWith($message): JsonResponse
+    {
+        return response()->json([
+            'status' => 'success',
+            'message' => $message,
+        ], 200);
+    }
 
     /**
      * Generate a standard created response (201).
@@ -35,6 +42,13 @@ class UtilityService
             'status' => 'success',
             'message' => $message,
             'data' => $data
+        ], 201);
+    }
+    public function is201ResponseUpdated($message,): JsonResponse
+    {
+        return response()->json([
+            'status' => 'success',
+            'message' => $message,
         ], 201);
     }
 
