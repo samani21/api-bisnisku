@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Models\Fitur;
+use App\Models\PaketFitur;
 use App\Models\PaketLangganan;
+use Illuminate\Http\Request;
 use App\Services\UtilityService;
 
-class PaketLanggananController extends Controller
+class PaketFiturController extends Controller
 {
     protected $utilityService;
 
@@ -16,22 +18,31 @@ class PaketLanggananController extends Controller
     }
     public function index(Request $request)
     {
-        $query = PaketLangganan::query();
-
+        $query = PaketFitur::join('fiturs', 'fiturs.id', '=', 'paket_fiturs.fitur_id')
+            ->join('paket_langganan', 'paket_langganan.id', '=', 'paket_fiturs.paket_id');
         // Search (misalnya by nama_paket)
         if ($request->has('search')) {
             $search = $request->input('search');
-            $query->where('nama_paket', 'like', '%' . $search . '%');
+            $query->where('nama_fitur', 'like', '%' . $search . '%');
         }
 
         // Filter (misalnya filter berdasarkan status aktif)
         if ($request->has('status')) {
-            $query->where('aktif', $request->input('status'));
+            $query->where('fiturs.aktif', $request->input('status'));
         }
 
         // Pagination (default: 10 per page)
         $perPage = $request->input('per_page', 10);
-        $data = $query->select('*', 'aktif as status')->paginate($perPage);
+        $data = $query->select(
+            'paket_fiturs.*',
+            'fiturs.aktif as status',
+            'fiturs.nama_fitur',
+            'fiturs.harga_satuan',
+            'fiturs.aktif as status',
+            'paket_langganan.nama_paket',
+            'paket_langganan.harga as harga_paket',
+            'paket_langganan.deskripsi',
+        )->paginate($perPage);
 
         if ($data->isNotEmpty()) {
             return $this->utilityService->is200ResponseWithData("Berhasil ambil data", [
@@ -46,17 +57,35 @@ class PaketLanggananController extends Controller
         }
     }
 
+    public function showSelect(Request $request)
+    {
+        $data = [];
+        $langganan = PaketLangganan::select(
+            'id as value',
+            'nama_paket as label',
+        )->get();
+        if ($langganan) {
+            $data['paket_langganan'] = $langganan;
+        }
+        $fitur = Fitur::select(
+            'id as value',
+            'nama_fitur as label',
+        )->get();
+        if ($fitur) {
+            $data['fitur'] = $fitur;
+        }
+        return $this->utilityService->is200ResponseWithData("Data berhasil dihapus", $data);
+    }
+
 
     public function create(Request $request)
     {
         $data = [
-            'nama_paket' => $request->nama_paket,
-            'harga' => $request->harga,
-            'durasi_hari' => $request->durasi_hari,
-            'deskripsi' => $request->deskripsi,
+            'paket_id' => $request->paket_id,
+            'fitur_id' => $request->fitur_id,
         ];
 
-        $insert = PaketLangganan::create($data);
+        $insert = PaketFitur::create($data);
         if ($insert) {
             return $this->utilityService->is201ResponseCreated("Berhasil simpan data", $insert);
         } else {
@@ -65,11 +94,9 @@ class PaketLanggananController extends Controller
     }
     public function update(Request $request, $id)
     {
-        $data = PaketLangganan::find($id);
-        $data->nama_paket = $request->nama_paket;
-        $data->harga = $request->harga;
-        $data->durasi_hari = $request->durasi_hari;
-        $data->deskripsi = $request->deskripsi;
+        $data = PaketFitur::find($id);
+        $data->paket_id = $request->paket_id;
+        $data->fitur_id = $request->fitur_id;
         if ($data->save()) {
             return $this->utilityService->is201ResponseUpdated("Update data berhasil");
         } else {
@@ -78,7 +105,7 @@ class PaketLanggananController extends Controller
     }
     public function distroy($id)
     {
-        $data = PaketLangganan::find($id);
+        $data = PaketFitur::find($id);
         if ($data->delete()) {
             return $this->utilityService->is200ResponseWith("Data berhasil dihapus");
         } else {

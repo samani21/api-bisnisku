@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Fitur;
 use Illuminate\Http\Request;
-use App\Models\PaketLangganan;
 use App\Services\UtilityService;
 
-class PaketLanggananController extends Controller
+class FiturController extends Controller
 {
     protected $utilityService;
 
@@ -16,12 +16,12 @@ class PaketLanggananController extends Controller
     }
     public function index(Request $request)
     {
-        $query = PaketLangganan::query();
+        $query = Fitur::query();
 
         // Search (misalnya by nama_paket)
         if ($request->has('search')) {
             $search = $request->input('search');
-            $query->where('nama_paket', 'like', '%' . $search . '%');
+            $query->where('nama_fitur', 'like', '%' . $search . '%');
         }
 
         // Filter (misalnya filter berdasarkan status aktif)
@@ -50,13 +50,12 @@ class PaketLanggananController extends Controller
     public function create(Request $request)
     {
         $data = [
-            'nama_paket' => $request->nama_paket,
-            'harga' => $request->harga,
-            'durasi_hari' => $request->durasi_hari,
+            'nama_fitur' => $request->nama_fitur,
             'deskripsi' => $request->deskripsi,
+            'harga_satuan' => $request->harga_satuan,
         ];
 
-        $insert = PaketLangganan::create($data);
+        $insert = Fitur::create($data);
         if ($insert) {
             return $this->utilityService->is201ResponseCreated("Berhasil simpan data", $insert);
         } else {
@@ -65,11 +64,10 @@ class PaketLanggananController extends Controller
     }
     public function update(Request $request, $id)
     {
-        $data = PaketLangganan::find($id);
-        $data->nama_paket = $request->nama_paket;
-        $data->harga = $request->harga;
-        $data->durasi_hari = $request->durasi_hari;
+        $data = Fitur::find($id);
+        $data->nama_fitur = $request->nama_fitur;
         $data->deskripsi = $request->deskripsi;
+        $data->harga_satuan = $request->harga_satuan;
         if ($data->save()) {
             return $this->utilityService->is201ResponseUpdated("Update data berhasil");
         } else {
@@ -78,7 +76,7 @@ class PaketLanggananController extends Controller
     }
     public function distroy($id)
     {
-        $data = PaketLangganan::find($id);
+        $data = Fitur::find($id);
         if ($data->delete()) {
             return $this->utilityService->is200ResponseWith("Data berhasil dihapus");
         } else {
